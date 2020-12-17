@@ -64,7 +64,7 @@ open class LiquidSwipeContainerController: UIViewController {
     private var animating: Bool = false
     private var duration: CFTimeInterval = 0.8
     
-    private var rightEdgeGesture = UIScreenEdgePanGestureRecognizer()
+    private var rightEdgeGesture = UIPanGestureRecognizer()
     private var leftEdgeGesture = UIScreenEdgePanGestureRecognizer()
     
     private var csBtnNextLeading: NSLayoutConstraint?
@@ -88,11 +88,14 @@ open class LiquidSwipeContainerController: UIViewController {
         csBtnNextCenterY = btnNext.centerYAnchor.constraint(equalTo: view.topAnchor, constant: initialWaveCenter)
         csBtnNextCenterY?.isActive = true
         btnNext.addTarget(self, action: #selector(btnTapped(_:)), for: .touchUpInside)
+        
+        // Tapping view move to the next one
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(btnTapped(_:)))
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func configureGestures() {
         rightEdgeGesture.addTarget(self, action: #selector(rightEdgePan))
-        rightEdgeGesture.edges = .right
         view.addGestureRecognizer(rightEdgeGesture)
         
         leftEdgeGesture.addTarget(self, action: #selector(leftEdgePan))
@@ -557,6 +560,8 @@ open class LiquidSwipeContainerController: UIViewController {
     }
     
     @objc private func btnTapped(_ sender: AnyObject) {
+        guard nextViewController != nil else { return }
+        
         animationStartTime = CACurrentMediaTime()
         guard !animating else {
             return
